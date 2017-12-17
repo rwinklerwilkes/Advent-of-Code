@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.ndimage.measurements import label
 
 ##From Day 10
 def rotate_left(l,n):
@@ -57,7 +58,7 @@ def knot_hash(input_string):
     hx = [to_hex(i) for i in dense]
     return ''.join(hx)
 
-def part_one(input_string):
+def part_one_fn(input_string):
     hex_rep = []
     for i in range(128):
         hex_rep.append(knot_hash(input_string + '-%i'%i))
@@ -69,6 +70,8 @@ def part_one(input_string):
             bin_rep_str += bin(int(char,16))[2:].zfill(4)
         bin_rep.append([int(i) for i in list(bin_rep_str)])
     n = np.array(bin_rep)
-    return n.sum()
+    return n,n.sum()
 
-p = part_one('oundnydw')
+p,part_one = part_one_fn('oundnydw')
+#cheating with scipy
+labeled_array, part_two = label(p)
