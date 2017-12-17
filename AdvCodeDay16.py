@@ -38,12 +38,30 @@ def part_one_ex_fn(instruction_list):
 ##        print(''.join(l))
     return ''.join(l)
 
-def part_one_fn(instruction_list):
-    l = [chr(i) for i in range(97,113)]
+def part_one_fn(instruction_list,l=None):
+    if not l:
+        l = [chr(i) for i in range(97,113)]
     for instruction in instruction_list:
         l = read_instruction(l,instruction)
 ##        print(''.join(l))
-    return ''.join(l)
+    return l
+
+def find_cycle(instruction_list):
+    #tortoise and hare algorithm
+    ctr = 0
+    slow = [chr(i) for i in range(97,113)]
+    slow = part_one_fn(instruction_list,slow)
+    fast = [chr(i) for i in range(97,113)]
+    fast = part_one_fn(instruction_list,fast)
+    fast = part_one_fn(instruction_list,fast)
+    while ''.join(slow) != ''.join(fast):
+        slow = part_one_fn(instruction_list,slow)
+        fast = part_one_fn(instruction_list,fast)
+        fast = part_one_fn(instruction_list,fast)
+        ctr += 1
+
+    return ctr
+        
 
 ##instruction_list = ['s1','x3/4','pe/b']
 ##part_one_ex = part_one_ex_fn(instruction_list)
@@ -51,4 +69,12 @@ file = 'Adv16Input.txt'
 with open(file,'r') as f:
     instruction_list = f.read().split(',')
 
-part_one = part_one_fn(instruction_list)
+part_one = ''.join(part_one_fn(instruction_list))
+##part_two = part_two_fn(instruction_list)
+m = find_cycle(instruction_list)
+c = m+1
+mod = 1000000000%c
+p_two = part_one_fn(instruction_list)
+for i in range(mod-1):
+    p_two = part_one_fn(instruction_list,p_two)
+part_two = ''.join(p_two)
