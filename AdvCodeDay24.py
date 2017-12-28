@@ -1,34 +1,48 @@
-class Node():
-    def __init__(self,weight):
-        self.weight = weight
-        self.neighbors = []
+input_list = []
+file = 'Adv24Input.txt'
+with open(file,'r') as f:
+    for row in f.readlines():
+        input_list.append(row.strip())
 
-    def add_neighbor(self,neighbor):
-        if neighbor not in self.neighbors:
-            self.neighbors.append(neighbor)
+##input_list = ['0/2','2/2','2/3','3/4','3/5','0/1','10/1','9/10']
+mapped_list = [list(map(int,row.split("/"))) for row in input_list]
 
-    def __repr__(self):
-        return 'Weight: %i'%(self.weight)
+def recurse(parts,last_part):
+    mxscore = 0
+    mxparts = []
+    for i,part in enumerate(parts):
+        match = (part[0] == last_part or part[1] == last_part)
+        if match:
+            non_match_part = part[1] if part[0]==last_part else part[0]
+            remainder = part + recurse(parts[:i] + parts[i+1:],non_match_part)
+            if sum(remainder) > mxscore:
+                mxscore = sum(remainder)
+                mxparts = remainder
+    return mxparts
 
-def part_one_fn(input_list):
-    all_nodes = {}
-    for i in input_list:
-        row = i.split('/')
-        ndone = int(row[0])
-        ndtwo = int(row[1])
-        try:
-            node_one = all_nodes[ndone]
-        except:
-            node_one = Node(ndone)
-            all_nodes[ndone] = node_one
-        try:
-            node_two = all_nodes[ndtwo]
-        except:
-            node_two = Node(ndtwo)
-            all_nodes[ndtwo] = node_two
-        node_one.add_neighbor(node_two)
-        node_two.add_neighbor(node_one)
-    return all_nodes
+def recurse_part_two(parts,last_part):
+    mxscore = 0
+    mxparts = []
+    mxlen = 0
+    mxpartslen = []
+    for i,part in enumerate(parts):
+        match = (part[0] == last_part or part[1] == last_part)
+        if match:
+            non_match_part = part[1] if part[0]==last_part else part[0]
+            remainder, remainder_ln = recurse_part_two(parts[:i] + parts[i+1:],non_match_part)
+            remainder = part + remainder
+            remainder_ln = part + remainder_ln
+            if sum(remainder) > mxscore:
+                mxscore = sum(remainder)
+                mxparts = remainder
+            if len(remainder_ln) > mxlen:
+                mxlen = len(remainder_ln)
+                mxpartslen = remainder_ln
+            elif len(remainder_ln) == mxlen:
+                if sum(remainder_ln) > sum(mxpartslen):
+                    mxlen = len(remainder_ln)
+                    mxpartslen = remainder_ln
+    return mxparts, mxpartslen
 
-input_list = ['0/2','2/2','2/3','3/4','3/5','0/1','10/1','9/10']
-p = part_one_fn(input_list)
+##part_one = recurse(mapped_list,0)
+part_one, part_two = recurse_part_two(mapped_list,0)
